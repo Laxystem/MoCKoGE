@@ -7,11 +7,13 @@ plugins {
 
 allprojects {
     group = "quest.laxla.mockoge"
-    version = project.properties["version"]!!
 
+    // TODO: remove this
     repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
+        maven("Sonatype Snapshots") {
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+        }
     }
 }
+
+repositories { mavenCentral() }

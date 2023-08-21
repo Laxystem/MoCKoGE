@@ -1,5 +1,5 @@
 rootProject.name = "mockoge"
-include("core")
+include("core:common", "core:server", "core:client", "fileSystemTest")
 
 pluginManagement {
     val kotlin: String by settings
