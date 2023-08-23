@@ -1,6 +1,6 @@
 package quest.laxla.mockoge.core
 
-public object RootRegistry : Registry<Registry<*>>(RootRegistry::consumeFreezer) {
+public object RootRegistry : DefaultedRegistry<Registry<*>>(RootRegistry) {
     private val freezers = mutableListOf<(Boolean) -> Unit>()
 
     internal var isRegistryFrozen: Boolean

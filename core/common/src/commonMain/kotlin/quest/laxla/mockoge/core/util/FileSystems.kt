@@ -3,25 +3,27 @@ package quest.laxla.mockoge.core.util
 import kotlinx.collections.immutable.ImmutableList
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
+import quest.laxla.mockoge.core.MoCKoGE
+import kotlin.jvm.JvmName
 
-public typealias FileSystems = ImmutableList<FileAccessPoint>
-public typealias FileAction<T> = FileSystem.(baseDirectory: Path) -> T
+public typealias FileAction<T> = FileSystem.() -> T
 
-internal expect val fileSystems: FileSystems
+internal expect val FileSystem: FileSystem
 
-internal expect val primaryFileSystem: FileAccessPoint
+/**
+ * Secondary, read only filesystems to find bundles in.
+ */
+internal expect val SecondaryFileSystems: ImmutableList<FileSystem>
 
-public class FileAccessPoint(public val fileSystem: FileSystem, baseDirectory: Path) {
-    public val baseDirectory: Path = fileSystem.canonicalize(baseDirectory)
+public val CurrentDirectory: Path = ".".toPath()
 
-    public inline operator fun <T> invoke(action: FileAction<T>): T = fileSystem.action(baseDirectory)
-}
+public val BasePath: Path = if (MoCKoGE.isDevelopmentEnvironment) "out".toPath() else CurrentDirectory
 
-public inline fun <T> FileSystems.firstMatchFor(action: FileAction<T?>): T? =
-    asSequence().firstNotNullOfOrNull { it(action) }
+public inline fun <T> Iterable<FileSystem>.firstMatchFor(action: FileAction<T?>): T? = firstNotNullOfOrNull(action)
 
-public inline fun <T> FileSystems.allMatchesFor(crossinline action: FileAction<T?>): Sequence<T> =
-    asSequence().mapNotNull { it(action) }
+public fun <T> Iterable<FileSystem>.allMatchesFor(action: FileAction<T?>): Sequence<T> = asSequence().mapNotNull(action)
 
-public inline fun <T> FileSystems.allMatchesFor(crossinline action: FileAction<Sequence<T>>): Sequence<T> =
-    asSequence().flatMap { it(action) }
+@JvmName("flattenAllMatchesFor")
+public fun <T> Iterable<FileSystem>.allMatchesFor(action: FileAction<Sequence<T>>): Sequence<T> = asSequence().flatMap(action)
+

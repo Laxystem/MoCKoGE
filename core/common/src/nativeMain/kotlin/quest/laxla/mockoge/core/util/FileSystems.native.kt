@@ -1,10 +1,9 @@
 package quest.laxla.mockoge.core.util
 
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import okio.FileSystem
-import okio.Path.Companion.toPath
 
-internal actual val primaryFileSystem: FileAccessPoint = FileAccessPoint(FileSystem.SYSTEM, "~/.mockoge".toPath())
+internal actual val FileSystem: FileSystem = FileSystem.SYSTEM
 
-@Suppress("unused")
-internal actual val fileSystems: FileSystems = persistentListOf(primaryFileSystem)
+internal actual val SecondaryFileSystems: ImmutableList<FileSystem> = persistentListOf()

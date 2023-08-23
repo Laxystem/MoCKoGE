@@ -1,10 +1,8 @@
 plugins {
-    quest.laxla.mockoge.bundler
+    id("quest.laxla.mockoge.internal.bundler")
 }
 
 bundler {
-    isInternal = true
-
     kotlin.sourceSets {
         common {
             dependencies {

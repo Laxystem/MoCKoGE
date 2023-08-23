@@ -1,5 +1,5 @@
 plugins {
-    quest.laxla.mockoge.bundler
+    id("quest.laxla.mockoge.internal.bundler")
 }
 
 val collections: String by project
@@ -12,8 +12,6 @@ val semver: String by project
 val serialization: String by project
 
 bundler {
-    isInternal = true
-
     kotlin.sourceSets {
         common {
             dependencies {
