@@ -62,7 +62,7 @@ class BundlerSymbolProcessor(
 
     private inner class Visitor(private val writer: OutputStreamWriter) : KSVisitorVoid() {
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
-
+            // todo: complete this
         }
     }
 }
