@@ -1,26 +1,33 @@
 package quest.laxla.mockoge.gradle
 
 import com.google.devtools.ksp.isPublic
-import com.google.devtools.ksp.processing.*
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
-import java.io.OutputStreamWriter
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.toTypeName
+import com.squareup.kotlinpoet.ksp.writeTo
 
 private const val Package = "quest.laxla.mockoge"
+private const val CorePackage = "$Package.core"
 private const val AnnotationName = "Bundleable"
 private const val Annotation = "$Package.$AnnotationName"
 private const val SuperClassName = "BundleScript"
 private const val SuperClass = "$Package.$SuperClassName"
-private const val GenerationPackage = "$Package.generated"
+private const val CoreGenerationPackage = "$CorePackage.generated"
 private const val CoreGenerationFileName = "Core"
 private const val ImmutableCollections = "kotlinx.collections.immutable"
 private const val ImmutableList = "ImmutableList"
+private const val ListBuilder = "persistentListOf"
 
 /**
- * Creates a list of all objects annotated with [Annotation] and extending [SuperClass] inside [GenerationPackage].
+ * Creates a list of all objects annotated with [Annotation] and extending [SuperClass] inside [CoreGenerationPackage].
  */
 class BundlerSymbolProcessor(
     val codeGenerator: CodeGenerator,
@@ -39,30 +46,26 @@ class BundlerSymbolProcessor(
 
         if (symbols.isEmpty()) return emptyList()
 
-        /*
-        FileSpec.builder(GenerationPackage, CoreGenerationFileName).run {
-            //PropertySpec.builder("Bundles", ClassName(ImmutableCollections, ImmutableList).parameterizedBy(ClassName))
-        }
-         */
+        file(CoreGenerationPackage, CoreGenerationFileName) {
+            property(
+                "Bundles",
+                ImmutableCollections.type(ImmutableList).parameterizedBy(CorePackage.type(SuperClassName)),
+                KModifier.PUBLIC
+            ) {
+                initializer {
+                    add("%M(", ImmutableCollections.member(ListBuilder))
 
-        codeGenerator.createNewFile(
-            dependencies = Dependencies(aggregating = true, *symbols.map { it.containingFile!! }.toTypedArray()),
-            packageName = GenerationPackage,
-            fileName = CoreGenerationFileName
-        ).use { file ->
-            OutputStreamWriter(file).use { writer ->
-                writer.append("package $GenerationPackage")
+                    symbols.forEachIndexed { index, type ->
+                        val code = if (index == symbols.lastIndex) "%T" else "%T, "
 
-                symbols.forEach { it.accept(Visitor(writer), Unit) }
+                        add(code, type.asStarProjectedType().toTypeName())
+                    }
+
+                    add(")")
+                }
             }
-        }
+        }.writeTo(codeGenerator, aggregating = false, symbols.mapNotNull { it.containingFile })
 
         return symbols.filterNot { it.validate() }
-    }
-
-    private inner class Visitor(private val writer: OutputStreamWriter) : KSVisitorVoid() {
-        override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
-            // todo: complete this
-        }
     }
 }

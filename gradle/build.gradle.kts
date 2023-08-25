@@ -29,6 +29,7 @@ dependencies {
     implementation("com.google.devtools.ksp:symbol-processing-api:$kotlin-$ksp")
     implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kotlin-$ksp")
     implementation("com.squareup:kotlinpoet:$poet")
+    implementation("com.squareup:kotlinpoet-ksp:$poet")
 }
 
 gradlePlugin {
@@ -47,7 +48,7 @@ gradlePlugin {
     }
 }
 
-val outputDir: Directory = layout.buildDirectory.dir("generated-resources").get()
+val outputDir: Directory = layout.buildDirectory.dir("generated/resources").get()
 
 tasks {
     val bundle = create("bundle") {
