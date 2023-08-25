@@ -3,11 +3,9 @@ plugins {
 }
 
 bundler {
-    kotlin.sourceSets {
+    dependencies {
         common {
-            dependencies {
-                api(project(":core:common"))
-            }
+            api(project(":core:common"))
         }
     }
 }

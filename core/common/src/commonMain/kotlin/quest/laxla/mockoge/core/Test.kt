@@ -1,4 +1,4 @@
 package quest.laxla.mockoge.core
 
-@BundleScript
+@Bundleable
 public object Test

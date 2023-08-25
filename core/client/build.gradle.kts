@@ -1,13 +1,11 @@
 plugins {
-    id("quest.laxla.mockoge.bundler")
+    id("quest.laxla.mockoge.internal.bundler")
 }
 
 bundler {
-    kotlin.sourceSets {
+    dependencies {
         common {
-            dependencies {
-                api(project(":core:server"))
-            }
+            api(project(":core:common"))
         }
     }
 }

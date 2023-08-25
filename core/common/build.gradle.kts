@@ -12,24 +12,20 @@ val semver: String by project
 val serialization: String by project
 
 bundler {
-    kotlin.sourceSets {
+    dependencies {
         common {
-            dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:$serialization")
-                api("org.jetbrains.kotlinx:kotlinx-collections-immutable:$collections")
-                api("org.jetbrains.kotlinx:kotlinx-datetime:$datetime")
-                api("com.github.ajalt.colormath:colormath:$colormath")
-                api("io.github.oshai:kotlin-logging:$klogging")
-                api("io.github.z4kn4fein:semver:$semver")
-                api("com.squareup.okio:okio:$okio")
-            }
+            api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")
+            api("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:$serialization")
+            api("org.jetbrains.kotlinx:kotlinx-collections-immutable:$collections")
+            api("org.jetbrains.kotlinx:kotlinx-datetime:$datetime")
+            api("com.github.ajalt.colormath:colormath:$colormath")
+            api("io.github.oshai:kotlin-logging:$klogging")
+            api("io.github.z4kn4fein:semver:$semver")
+            api("com.squareup.okio:okio:$okio")
         }
 
-        test {
-            dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines")
-            }
+        tests {
+            api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines")
         }
     }
 }

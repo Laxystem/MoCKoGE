@@ -11,15 +11,19 @@ class InternalBundlerPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         target.apply<BundlerPlugin>()
 
-        target.extensions.getByType<BundlerExtension>().run {
-            explicitApi = ExplicitApiMode.Strict
-
-            compiler {
-                progressiveMode = true
-                allWarningsAsErrors = true
+        target.tasks.getByName(BundleTask.NAME) {
+            doFirst("configureBundler") {
+                target.extensions.getByType<BundlerExtension>().run { configure() }
             }
+        }
+    }
 
-            isReflectionEnabled = true
+    private fun BundlerExtension.configure() {
+        explicitApi = ExplicitApiMode.Strict
+
+        compiler {
+            progressiveMode = true
+            allWarningsAsErrors = true
         }
     }
 }

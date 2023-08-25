@@ -3,56 +3,20 @@ package quest.laxla.mockoge.gradle
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
-import java.io.File
 
+private const val PluginName = "bundler"
 private const val Entrypoint = "quest.laxla.mockoge.core.main"
 
 class BundlerPlugin : Plugin<Project> {
-
-    lateinit var linux: List<KotlinNativeTargetWithHostTests> private set
-    lateinit var darwin: List<KotlinNativeTarget> private set
-
     override fun apply(project: Project) {
         project.apply(plugin = "org.jetbrains.kotlin.multiplatform")
-
         project.apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
         project.apply(plugin = "com.google.devtools.ksp")
 
-        val config = project.extensions.create<BundlerExtension>("bundler")
-
-        if (config.isAutomaticallyCreatingMissingPropertyFile) File(project.rootDir, "gradle.properties").apply {
-            parentFile.mkdirs()
-            if (createNewFile()) outputStream().writer().use {
-
-                if (config.isExtractingVersionFromPropertyFile) {
-                    //language=properties
-                    writeText(
-                        """
-${config.versionPropertyName}=0.0.1-alpha
-
-                    """.trimIndent()
-                    )
-                }
-
-                //language=properties
-                writeText(
-                    """
-# Dependencies
-jvm=17
-
-# Config
-kotlin.native.ignoreDisabledTargets=true
-kotlin.code.style=official
-
-                """.trimIndent()
-                )
-            }
+        val config = project.extensions.create<BundlerExtension>(PluginName)
+        val bundler = project.tasks.register<BundleTask>(BundleTask.NAME) {
+            description = "Configures Kotlin/Multiplatform and enables codegen required for MoCKoGE."
         }
-
-        if (config.isExtractingVersionFromPropertyFile) project.version = project.properties[config.versionPropertyName]
-            ?: throw NullPointerException("Missing property '${config.versionPropertyName}' in gradle.properties")
 
         val jvm: String by project
 
@@ -66,13 +30,13 @@ kotlin.code.style=official
                 }
             }
 
-            linux = listOf(
+            val linux = listOf(
                 //linuxArm64(), //todo: https://github.com/Kotlin/kotlinx-datetime/issues/300 https://github.com/square/okio/issues/1242 https://github.com/Kotlin/kotlinx.collections.immutable/issues/145
                 linuxX64(),
                 mingwX64()
             )
 
-            darwin = listOf(
+            val darwin = listOf(
                 macosArm64(),
                 macosX64(),
                 iosArm64(),
@@ -95,34 +59,29 @@ kotlin.code.style=official
                     }
                 }
 
-                val javaMain by creating {
-                    dependsOn(commonMain)
-                }
-
-                val jvmMain by getting {
-                    dependsOn(javaMain)
-
-                    dependencies {
-                        if (config.isReflectionEnabled) implementation(kotlin("reflect"))
-                    }
-                }
-
-                /*
-                val androidMain by getting {
+                val javaMain by creating { dependsOn(commonMain) }
+                val javaTest by creating {
                     dependsOn(javaMain)
                 }
-                 */
 
-                val nativeMain by creating {
-                    dependsOn(commonMain)
+                val jvmMain by getting { dependsOn(javaMain) }
+                val jvmTest by getting {
+                    dependsOn(jvmMain)
                 }
 
-                val linuxMain by creating {
+                val nativeMain by creating { dependsOn(commonMain) }
+                val nativeTest by creating {
                     dependsOn(nativeMain)
                 }
 
-                val darwinMain by creating {
-                    dependsOn(nativeMain)
+                val linuxMain by creating { dependsOn(nativeMain) }
+                val linuxTest by creating {
+                    dependsOn(linuxMain)
+                }
+
+                val darwinMain by creating { dependsOn(nativeMain) }
+                val darwinTest by creating {
+                    dependsOn(darwinMain)
                 }
 
                 linux.forEach {
@@ -143,6 +102,13 @@ kotlin.code.style=official
                     getByName(it.targetName + "Main") {
                         dependsOn(darwinMain)
                     }
+                }
+            }
+
+            targets.all {
+                compilations.all {
+                    project.tasks.getByName(compileAllTaskName).dependsOn(bundler)
+                    project.tasks.getByName(compileKotlinTaskName).dependsOn(bundler)
                 }
             }
         }
