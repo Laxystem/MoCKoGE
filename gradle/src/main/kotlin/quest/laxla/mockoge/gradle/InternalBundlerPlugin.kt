@@ -1,5 +1,6 @@
 package quest.laxla.mockoge.gradle
 
+import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -14,6 +15,7 @@ class InternalBundlerPlugin : Plugin<Project> {
         target.tasks.getByName(BundleTask.NAME) {
             doFirst("configureBundler") {
                 target.extensions.getByType<BundlerExtension>().run { configure() }
+                target.extensions.getByType<KspExtension>().run { configure() }
             }
         }
     }
@@ -25,5 +27,9 @@ class InternalBundlerPlugin : Plugin<Project> {
             progressiveMode = true
             allWarningsAsErrors = true
         }
+    }
+
+    private fun KspExtension.configure() {
+        allWarningsAsErrors = true
     }
 }

@@ -7,9 +7,11 @@ val colormath: String by project
 val coroutines: String by project
 val datetime: String by project
 val klogging: String by project
+val logback: String by project
 val okio: String by project
 val semver: String by project
 val serialization: String by project
+val slf4j: String by project
 
 bundler {
     dependencies {
@@ -26,6 +28,11 @@ bundler {
 
         tests {
             api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines")
+        }
+
+        jvm {
+            runtimeOnly("org.slf4j:slf4j-api:$slf4j")
+            runtimeOnly("ch.qos.logback:logback-classic:$logback")
         }
     }
 }

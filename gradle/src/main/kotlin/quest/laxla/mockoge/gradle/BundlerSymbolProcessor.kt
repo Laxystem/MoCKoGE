@@ -14,25 +14,25 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 
-private const val Package = "quest.laxla.mockoge"
-private const val CorePackage = "$Package.core"
+private const val Package = "quest.laxla.mockoge.core"
 private const val AnnotationName = "Bundleable"
 private const val Annotation = "$Package.$AnnotationName"
 private const val SuperClassName = "BundleScript"
 private const val SuperClass = "$Package.$SuperClassName"
-private const val CoreGenerationPackage = "$CorePackage.generated"
-private const val CoreGenerationFileName = "Core"
+private const val GenerationPackage = "$Package.generated"
+private const val GenerationFileName = "Bundles"
 private const val ImmutableCollections = "kotlinx.collections.immutable"
 private const val ImmutableList = "ImmutableList"
 private const val ListBuilder = "persistentListOf"
 
 /**
- * Creates a list of all objects annotated with [Annotation] and extending [SuperClass] inside [CoreGenerationPackage].
+ * Creates a list of all objects annotated with [Annotation] and extending [SuperClass] inside [GenerationPackage].
  */
 class BundlerSymbolProcessor(
     val codeGenerator: CodeGenerator,
     val logger: KSPLogger,
-    val config: Map<String, String>
+    val config: Map<String, String>,
+    val isCommon: Boolean
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -43,14 +43,13 @@ class BundlerSymbolProcessor(
             .filter { it.isPublic() }
             .toList()
 
-
         if (symbols.isEmpty()) return emptyList()
 
-        file(CoreGenerationPackage, CoreGenerationFileName) {
+        if (!isCommon) file(GenerationPackage, GenerationFileName) {
             property(
-                "Bundles",
-                ImmutableCollections.type(ImmutableList).parameterizedBy(CorePackage.type(SuperClassName)),
-                KModifier.PUBLIC
+                GenerationFileName,
+                ImmutableCollections.type(ImmutableList).parameterizedBy(Package.type(SuperClassName)),
+                KModifier.PUBLIC, KModifier.ACTUAL
             ) {
                 initializer {
                     add("%M(", ImmutableCollections.member(ListBuilder))
@@ -64,7 +63,7 @@ class BundlerSymbolProcessor(
                     add(")")
                 }
             }
-        }.writeTo(codeGenerator, aggregating = false, symbols.mapNotNull { it.containingFile })
+        }.writeTo(codeGenerator, aggregating = true, symbols.mapNotNull { it.containingFile })
 
         return symbols.filterNot { it.validate() }
     }

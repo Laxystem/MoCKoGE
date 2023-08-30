@@ -1,21 +1,50 @@
 package quest.laxla.mockoge.core
 
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.toPersistentMap
+import quest.laxla.mockoge.core.Registry.Freezer
+import quest.laxla.mockoge.core.Registry.FreezerConsumer
 import kotlin.jvm.JvmInline
 
-public typealias RegistryFreezer = (Boolean) -> Unit
-public typealias RegistryFreezerConsumer = (RegistryFreezer) -> Unit
-
+/**
+ * Stores things registered by [Bundle]s under [Identifier]s.
+ *
+ * @property lifecycle A [Freezer] will be provided to this [FreezerConsumer] during construction,
+ * allowing it to [freeze][isFrozen] and [unfreeze][isFrozen] this registry, controlling its lifecycle.
+ *
+ * A [Registry] may bind to another's lifecycle, [freezing][isFrozen] (and unfreezing) together with it.
+ *
+ * Defaults to binding to the [RootRegistry]'s [lifecycle][RootRegistry.lifecycle].
+ * A value of null means this registry has no lifecycle,
+ * making it permanently [unfrozen][isFrozen] and mutable
+ * (this kind of behavior is heavily discouraged and not threadsafe).
+ */
 public abstract class Registry<T>(
-    freezerProvider: RegistryFreezerConsumer = RootRegistry::consumeFreezer
+    val lifecycle: FreezerConsumer? = RootRegistry.lifecycle
 ) : Iterable<Registry.Entry<T>> where T : Any {
 
     private val contents = mutableMapOf<Identifier, T>()
 
+    public val contentsAsMap: PersistentMap<Identifier, T> get() = contents.toPersistentMap()
+
     /**
      * Does the registry currently allow content modification?
+     *
+     * The setter is accessible by a [Freezer] provided to the [FreezerConsumer] this [registry][Registry] was constructed with.
      */
     public var isFrozen: Boolean = false
         private set
+
+    /**
+     * Delegates [isFrozen]'s setter
+     */
+    public fun interface Freezer {
+        public fun setFrozen(value: Boolean)
+    }
+
+    public fun interface FreezerConsumer {
+        public fun consume(freezer: Freezer)
+    }
 
     /**
      * The [Identifier] this registry is registered under in the [RootRegistry].
@@ -28,7 +57,7 @@ public abstract class Registry<T>(
     }
 
     init {
-        freezerProvider {
+        lifecycle?.consume {
             isFrozen = it
         }
     }

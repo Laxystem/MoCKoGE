@@ -1,8 +1,11 @@
 package quest.laxla.mockoge.gradle
 
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 private const val PluginName = "bundler"
 private const val Entrypoint = "quest.laxla.mockoge.core.main"
@@ -12,6 +15,7 @@ class BundlerPlugin : Plugin<Project> {
         project.apply(plugin = "org.jetbrains.kotlin.multiplatform")
         project.apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
         project.apply(plugin = "com.google.devtools.ksp")
+        project.apply(plugin = "idea")
 
         val config = project.extensions.create<BundlerExtension>(PluginName)
         val bundler = project.tasks.register<BundleTask>(BundleTask.NAME) {
@@ -84,25 +88,8 @@ class BundlerPlugin : Plugin<Project> {
                     dependsOn(darwinMain)
                 }
 
-                linux.forEach {
-                    it.binaries.executable {
-                        entryPoint = Entrypoint
-                    }
-
-                    getByName(it.targetName + "Main") {
-                        dependsOn(linuxMain)
-                    }
-                }
-
-                darwin.forEach {
-                    it.binaries.executable {
-                        entryPoint = Entrypoint
-                    }
-
-                    getByName(it.targetName + "Main") {
-                        dependsOn(darwinMain)
-                    }
-                }
+                configure(linux, linuxMain, linuxTest)
+                configure(darwin, darwinMain, darwinTest)
             }
 
             targets.all {
@@ -113,8 +100,29 @@ class BundlerPlugin : Plugin<Project> {
             }
         }
 
+
         project.dependencies {
-            add("kspJvm", "quest.laxla.mockoge:gradle:${config.mockoge}")
+            val dependency = "quest.laxla.mockoge:gradle:${config.mockoge}"
+
+            project.configurations.matching { it.name.startsWith("ksp") && it.name != "ksp" }.forEach {
+                add(it.name, dependency)
+            }
         }
+    }
+
+    private fun NamedDomainObjectContainer<KotlinSourceSet>.configure(
+        nativeTargets: List<KotlinNativeTarget>,
+        mainSourceSet: KotlinSourceSet,
+        @Suppress("UNUSED_PARAMETER") testSourceSet: KotlinSourceSet
+    ) = nativeTargets.forEach {
+        it.binaries.executable {
+            entryPoint = Entrypoint
+        }
+
+        getByName(it.targetName + "Main") {
+            dependsOn(mainSourceSet)
+        }
+
+        getByName(it.targetName + "Test") { }
     }
 }
