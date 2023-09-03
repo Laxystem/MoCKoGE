@@ -2,7 +2,6 @@ package quest.laxla.mockoge.core.util
 
 import quest.laxla.mockoge.core.Identifier
 import quest.laxla.mockoge.core.NamespaceProvider
-import quest.laxla.mockoge.core.loader.BundleFileExtension
 import kotlin.jvm.JvmName
 
 public const val NamespaceGroup: String = "namespace"
@@ -19,15 +18,3 @@ public val IdentifierPattern: Regex =
 
 @JvmName("create")
 public infix fun String.at(provider: NamespaceProvider): Identifier = Identifier(provider.namespace, this)
-
-/**
- * Turns `"example.mockoge.bundle.json"` to `"mockoge/example"`
- */
-@JvmName("extractNamespaceFrom")
-public fun String.extractNamespace(): String? = this
-    .substringBeforeLast(BundleFileExtension)
-    .takeUnless { it == this }
-    ?.splitToSequence('.')
-    ?.withIndex()
-    ?.sortedByDescending { it.index }
-    ?.joinToString(separator = "/") { it.value }

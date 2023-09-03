@@ -1,4 +1,4 @@
-package quest.laxla.mockoge.core
+package quest.laxla.mockoge.core.loader
 
 /**
  * Will add this [BundleScript]

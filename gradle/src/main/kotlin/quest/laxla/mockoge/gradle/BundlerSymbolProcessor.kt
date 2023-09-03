@@ -15,10 +15,11 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 
 private const val Package = "quest.laxla.mockoge.core"
+private const val LoaderPackage = "$Package.loader"
 private const val AnnotationName = "Bundleable"
-private const val Annotation = "$Package.$AnnotationName"
+private const val Annotation = "$LoaderPackage.$AnnotationName"
 private const val SuperClassName = "BundleScript"
-private const val SuperClass = "$Package.$SuperClassName"
+private const val SuperClass = "$LoaderPackage.$SuperClassName"
 private const val GenerationPackage = "$Package.generated"
 private const val GenerationFileName = "Bundles"
 private const val ImmutableCollections = "kotlinx.collections.immutable"
@@ -48,7 +49,7 @@ class BundlerSymbolProcessor(
         if (!isCommon) file(GenerationPackage, GenerationFileName) {
             property(
                 GenerationFileName,
-                ImmutableCollections.type(ImmutableList).parameterizedBy(Package.type(SuperClassName)),
+                ImmutableCollections.type(ImmutableList).parameterizedBy(LoaderPackage.type(SuperClassName)),
                 KModifier.PUBLIC, KModifier.ACTUAL
             ) {
                 initializer {

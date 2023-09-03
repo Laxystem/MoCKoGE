@@ -8,7 +8,7 @@ package quest.laxla.mockoge.core
 public abstract class DefaultedRegistry<T : Any>(
     public val default: T,
     private val defaultEntryPath: String = "root",
-    freezerProvider: RegistryFreezerConsumer = RootRegistry::consumeFreezer
+    freezerProvider: Registry.FreezerConsumer? = RootRegistry.lifecycle
 ) : Registry<T>(freezerProvider), RegistrationAware {
 
     /**

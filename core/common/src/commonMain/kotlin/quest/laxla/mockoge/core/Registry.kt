@@ -20,7 +20,7 @@ import kotlin.jvm.JvmInline
  * (this kind of behavior is heavily discouraged and not threadsafe).
  */
 public abstract class Registry<T>(
-    val lifecycle: FreezerConsumer? = RootRegistry.lifecycle
+    public val lifecycle: FreezerConsumer? = RootRegistry.lifecycle
 ) : Iterable<Registry.Entry<T>> where T : Any {
 
     private val contents = mutableMapOf<Identifier, T>()

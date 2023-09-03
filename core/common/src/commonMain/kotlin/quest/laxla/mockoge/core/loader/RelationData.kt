@@ -4,7 +4,7 @@ import io.github.z4kn4fein.semver.constraints.Constraint
 import kotlinx.collections.immutable.ImmutableList
 import quest.laxla.mockoge.core.Bundle
 
-public data class DependencyData(
+public data class RelationData(
     val namespace: String,
     val relation: Bundle.BundleDependencyRelation,
     val versions: ImmutableList<Constraint>

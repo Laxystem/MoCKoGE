@@ -27,3 +27,16 @@ public fun <T> Iterable<FileSystem>.allMatchesFor(action: FileAction<T?>): Seque
 @JvmName("flattenAllMatchesFor")
 public fun <T> Iterable<FileSystem>.allMatchesFor(action: FileAction<Sequence<T>>): Sequence<T> = asSequence().flatMap(action)
 
+public const val BundleFileExtension: String = ".bundle"
+
+/**
+ * Turns `"example.mockoge.bundle.json"` to `"mockoge/example"`
+ */
+@JvmName("extractNamespaceFrom")
+public fun String.extractNamespace(): String? = this
+    .substringBeforeLast(BundleFileExtension)
+    .takeUnless { it == this }
+    ?.splitToSequence('.')
+    ?.withIndex()
+    ?.sortedByDescending { it.index }
+    ?.joinToString(separator = "/") { it.value }
