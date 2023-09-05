@@ -8,18 +8,18 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 private const val PluginName = "bundler"
-private const val Entrypoint = "quest.laxla.mockoge.core.main"
+private const val Entrypoint = "quest.laxla.mockoge.main"
 
 class BundlerPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.apply(plugin = "org.jetbrains.kotlin.multiplatform")
         project.apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
         project.apply(plugin = "com.google.devtools.ksp")
-        project.apply(plugin = "idea")
 
         val config = project.extensions.create<BundlerExtension>(PluginName)
         val bundler = project.tasks.register<BundleTask>(BundleTask.NAME) {
             description = "Configures Kotlin/Multiplatform and enables codegen required for MoCKoGE."
+            group = "Build"
         }
 
         val jvm: String by project
@@ -64,32 +64,17 @@ class BundlerPlugin : Plugin<Project> {
                 }
 
                 val javaMain by creating { dependsOn(commonMain) }
-                val javaTest by creating {
-                    dependsOn(javaMain)
-                }
 
                 val jvmMain by getting { dependsOn(javaMain) }
-                val jvmTest by getting {
-                    dependsOn(jvmMain)
-                }
 
                 val nativeMain by creating { dependsOn(commonMain) }
-                val nativeTest by creating {
-                    dependsOn(nativeMain)
-                }
 
                 val linuxMain by creating { dependsOn(nativeMain) }
-                val linuxTest by creating {
-                    dependsOn(linuxMain)
-                }
 
                 val darwinMain by creating { dependsOn(nativeMain) }
-                val darwinTest by creating {
-                    dependsOn(darwinMain)
-                }
 
-                configure(linux, linuxMain, linuxTest)
-                configure(darwin, darwinMain, darwinTest)
+                configure(linux, linuxMain)
+                configure(darwin, darwinMain)
             }
 
             targets.all {
@@ -99,7 +84,6 @@ class BundlerPlugin : Plugin<Project> {
                 }
             }
         }
-
 
         project.dependencies {
             val dependency = "quest.laxla.mockoge:gradle:${config.mockoge}"
@@ -112,8 +96,7 @@ class BundlerPlugin : Plugin<Project> {
 
     private fun NamedDomainObjectContainer<KotlinSourceSet>.configure(
         nativeTargets: List<KotlinNativeTarget>,
-        mainSourceSet: KotlinSourceSet,
-        @Suppress("UNUSED_PARAMETER") testSourceSet: KotlinSourceSet
+        mainSourceSet: KotlinSourceSet
     ) = nativeTargets.forEach {
         it.binaries.executable {
             entryPoint = Entrypoint

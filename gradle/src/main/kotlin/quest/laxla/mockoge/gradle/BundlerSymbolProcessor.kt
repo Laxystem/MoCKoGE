@@ -14,7 +14,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 
-private const val Package = "quest.laxla.mockoge.core"
+private const val Package = "quest.laxla.mockoge"
 private const val LoaderPackage = "$Package.loader"
 private const val AnnotationName = "Bundleable"
 private const val Annotation = "$LoaderPackage.$AnnotationName"
@@ -39,7 +39,6 @@ class BundlerSymbolProcessor(
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver.getSymbolsWithAnnotation(Annotation)
             .filterIsInstance<KSClassDeclaration>()
-            .filterNot { it.isActual } // we use the `expect` version.
             .filter { it.classKind == ClassKind.OBJECT }
             .filter { it.isPublic() }
             .toList()
