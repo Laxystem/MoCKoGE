@@ -1,5 +1,6 @@
 .gradle
-.idea
+.idea/*
+!.idea/icon.png
 **/build
 
 local.properties

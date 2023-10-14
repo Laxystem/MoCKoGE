@@ -1,5 +1,7 @@
 # MoCKoGE
 
+![MoCKoGE Icon](.idea/icon.png)
+
 > *The **Mo**dular **C**oncurrent **Ko**tlin **G**ame **E**ngine*
 
 ## Project Structure
