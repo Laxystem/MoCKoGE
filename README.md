@@ -1,8 +1,9 @@
 # MoCKoGE
-
-![MoCKoGE Icon](.idea/icon.png)
-
-> *The **Mo**dular **C**oncurrent **Ko**tlin **G**ame **E**ngine*
+<p align="center">
+  <image src=".idea/icon.png" alt="MoCKoGE Icon" width=256/>
+  <br/>
+  <i>The <b>Mo</b>dular <b>C</b>oncurrent <b>Ko</b>tlin <b>G</b>ame <b>E</b>ngine</i>
+</p>
 
 ## Project Structure
 
