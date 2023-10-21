@@ -31,7 +31,9 @@ private const val ListBuilder = "persistentListOf"
  */
 class BundlerSymbolProcessor(
     val codeGenerator: CodeGenerator,
+    @Suppress("unused")
     val logger: KSPLogger,
+    @Suppress("unused") // TODO: use or remove
     val config: Map<String, String>,
     val isCommon: Boolean
 ) : SymbolProcessor {
