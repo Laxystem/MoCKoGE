@@ -2,6 +2,9 @@
 
 > *The **Mo**dular **C**oncurrent **Ko**tlin **G**ame **E**ngine*
 
+## Contributing
+See the guides about [contributing](CONTRIBUTING.md) and [versioning](VERSIONING).
+
 ## Project Structure
 
 MoCKoGE is separated to subprojects:
