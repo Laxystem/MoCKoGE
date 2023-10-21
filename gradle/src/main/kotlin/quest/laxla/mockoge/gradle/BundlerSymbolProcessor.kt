@@ -39,6 +39,8 @@ class BundlerSymbolProcessor(
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver.getSymbolsWithAnnotation(Annotation)
             .filterIsInstance<KSClassDeclaration>()
+            .filterNot { it.isActual }
+            .filterNot { it.isExpect }
             .filter { it.classKind == ClassKind.OBJECT }
             .filter { it.isPublic() }
             .toList()
