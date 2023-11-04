@@ -14,6 +14,11 @@ val serialization: String by project
 val slf4j: String by project
 
 bundler {
+    target {
+        alpha()
+        linuxX64()
+    }
+
     dependencies {
         common {
             api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines")

@@ -2,6 +2,7 @@ package quest.laxla.mockoge.gradle
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
@@ -12,7 +13,14 @@ abstract class BundleTask : DefaultTask() {
     fun bundle() {
         createMissingPropertyFile()
         extractVersionFromPropertyFile()
-        config.advanced.explicitApi = config.explicitApi
+
+        project.dependencies {
+            val dependency = "quest.laxla.mockoge:gradle:${config.mockoge}"
+
+            project.configurations.matching { it.name.startsWith("ksp") && it.name != "ksp" }.forEach {
+                add(it.name, dependency)
+            }
+        }
     }
 
     private fun createMissingPropertyFile() {

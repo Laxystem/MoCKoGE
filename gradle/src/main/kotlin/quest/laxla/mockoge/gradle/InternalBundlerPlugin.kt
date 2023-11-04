@@ -4,7 +4,6 @@ import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
@@ -24,8 +23,8 @@ class InternalBundlerPlugin : Plugin<Project> {
         explicitApi = ExplicitApiMode.Strict
 
         compiler {
-            progressiveMode = true
-            allWarningsAsErrors = true
+            progressiveMode.set(true)
+            allWarningsAsErrors.set(true)
         }
     }
 

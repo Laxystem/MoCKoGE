@@ -14,19 +14,46 @@ import org.jetbrains.kotlin.gradle.utils.property
 
 private typealias Kotlin = NamedDomainObjectContainer<KotlinSourceSet>
 private typealias Dependencies = KotlinDependencyHandler.() -> Unit
+private typealias Target = KotlinMultiplatformExtension.() -> Unit
 
 @Suppress("FunctionName")
-abstract class BundlerExtension (project: Project) {
+abstract class BundlerExtension(project: Project) {
     var isAutomaticallyCreatingMissingPropertyFile by property { true }
     var isExtractingVersionFromPropertyFile by property { true }
     var versionPropertyName: String by property { "version" }
-    var explicitApi by property { ExplicitApiMode.Disabled }
+
+    var explicitApi: ExplicitApiMode?
+        get() = advanced.explicitApi
+        set(value) { advanced.explicitApi = value }
+
+    val alpha = Everything
+    val editor = EditorSupport
+
+    companion object {
+        val EditorSupport: Target = {
+            jvm()
+        }
+
+        val Everything: Target = {
+            EditorSupport()
+        }
+    }
+
+    var target: Target? = null
+        set(value) {
+            field = value
+
+            value?.invoke(advanced)
+        }
+
+    fun target(target: Target) {
+        this.target = target
+    }
 
     val mockoge = BundlerPlugin::class.java.classLoader.getResource(".mockoge")!!.readText()
     fun mockoge(module: String) = "quest.laxla.mockoge:$module:$mockoge"
 
     val advanced = project.extensions.getByType<KotlinMultiplatformExtension>()
-    fun advanced(configure: KotlinMultiplatformExtension.() -> Unit) = advanced.configure()
 
     val dependencies: Kotlin get() = advanced.sourceSets
     fun dependencies(configure: Kotlin.() -> Unit) = dependencies.configure()
@@ -46,9 +73,12 @@ abstract class BundlerExtension (project: Project) {
     fun Kotlin.jvm(configure: Dependencies) = named<KotlinSourceSet>("jvmMain") { dependencies(configure) }
     fun Kotlin.`jvm tests`(configure: Dependencies) = named<KotlinSourceSet>("jvmTest") { dependencies(configure) }
     fun Kotlin.native(configure: Dependencies) = named<KotlinSourceSet>("nativeMain") { dependencies(configure) }
-    fun Kotlin.`native tests`(configure: Dependencies) = named<KotlinSourceSet>("nativeTest") { dependencies(configure) }
+    fun Kotlin.`native tests`(configure: Dependencies) =
+        named<KotlinSourceSet>("nativeTest") { dependencies(configure) }
+
     fun Kotlin.linux(configure: Dependencies) = named<KotlinSourceSet>("linuxMain") { dependencies(configure) }
     fun Kotlin.`linux tests`(configure: Dependencies) = named<KotlinSourceSet>("linuxTest") { dependencies(configure) }
     fun Kotlin.darwin(configure: Dependencies) = named<KotlinSourceSet>("darwinMain") { dependencies(configure) }
-    fun Kotlin.`darwin tests`(configure: Dependencies) = named<KotlinSourceSet>("darwinTest") { dependencies(configure) }
+    fun Kotlin.`darwin tests`(configure: Dependencies) =
+        named<KotlinSourceSet>("darwinTest") { dependencies(configure) }
 }
