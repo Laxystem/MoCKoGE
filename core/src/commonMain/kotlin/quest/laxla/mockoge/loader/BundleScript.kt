@@ -6,13 +6,14 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import quest.laxla.mockoge.*
 import quest.laxla.mockoge.Bundle.Relation.*
-import quest.laxla.mockoge.loader.internal.KotlinScript
 import quest.laxla.mockoge.util.*
 import quest.laxla.mockoge.util.VersionDSL.any
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmName
+import kotlin.jvm.JvmSerializableLambda
+import kotlin.jvm.JvmSynthetic
 
 private typealias RelationDataBuilder = Pair<String, Bundle.Relation>
 private typealias Registrar<T> = Pair<Identifiable, Registry<T>>
@@ -26,10 +27,6 @@ private typealias Registrar<T> = Pair<Identifiable, Registry<T>>
  */
 @BundleDSL
 @Suppress(Deprecation)
-@KotlinScript(
-    displayName = "MoCKoGE Bundle",
-    fileExtension = BundleFileExtension,
-)
 public abstract class BundleScript {
     private val _dependencies = mutableListOf<RelationData>()
 
@@ -47,6 +44,8 @@ public abstract class BundleScript {
      */
     public val declarations: ImmutableMap<Identifiable, ImmutableList<Pair<Identifiable, Any>>> get() = _declarations.toImmutableMap()
 
+    protected val projectVersion: String = throw NotImplementedError("Should've been replaced by the Bundler, check your gradle build")
+
     /**
      * Adds [namespace] as a dependency.
      *
@@ -55,7 +54,7 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1-alpha
      */
-    public infix fun Bundle.Relation.dependency(namespace: String): RelationDataBuilder =
+    protected infix fun Bundle.Relation.dependency(namespace: String): RelationDataBuilder =
         namespace to this
 
     /**
@@ -68,7 +67,7 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1
      */
-    public infix fun Bundle.Relation.officialDependency(namespace: String): RelationDataBuilder =
+    protected infix fun Bundle.Relation.officialDependency(namespace: String): RelationDataBuilder =
         dependency(namespace = EngineName + Identifier.NAMESPACE_SEPARATOR + namespace)
 
     /**
@@ -77,7 +76,7 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1
      */
-    public infix fun RelationDataBuilder.version(version: Constraint): BundleReference {
+    protected infix fun RelationDataBuilder.version(version: Constraint): BundleReference {
         val (namespace, relation) = this
 
         _dependencies += RelationData(namespace, relation, version)
@@ -91,7 +90,7 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1
      */
-    public infix fun RelationDataBuilder.version(version: String): BundleReference = version(version.toConstraint())
+    protected infix fun RelationDataBuilder.version(version: String): BundleReference = version(version.toConstraint())
 
     /**
      * Specifies the version of a dependency.
@@ -101,7 +100,7 @@ public abstract class BundleScript {
      * @see VersionDSL
      * @see any
      */
-    public inline infix fun RelationDataBuilder.version(version: ConstraintBlock): BundleReference =
+    protected inline infix fun RelationDataBuilder.version(version: ConstraintBlock): BundleReference =
         version(VersionDSL(version))
 
 
@@ -112,7 +111,7 @@ public abstract class BundleScript {
      * @since 0.0.1
      */
     @OptIn(ExperimentalContracts::class)
-    public inline fun namespace(namespace: BundleReference, block: RegistrationScript.() -> Unit) {
+    protected inline fun namespace(namespace: BundleReference, block: RegistrationScript.() -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.EXACTLY_ONCE)
         }
@@ -128,7 +127,7 @@ public abstract class BundleScript {
      */
     @OptIn(ExperimentalContracts::class)
     @JvmName("namespace\$infix")
-    public inline infix fun BundleReference.namespace(block: RegistrationScript.() -> Unit) {
+    protected inline infix fun BundleReference.namespace(block: RegistrationScript.() -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.EXACTLY_ONCE)
         }
@@ -145,7 +144,7 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1
      */
-    public infix fun <T : Any> Registry<T>.aka(path: String): Registrar<T> =
+    protected infix fun <T : Any> Registry<T>.aka(path: String): Registrar<T> =
         register(path, entry = this, RootRegistry.identifier) to this
 
     /**
@@ -155,7 +154,7 @@ public abstract class BundleScript {
      * @since 0.0.1
      */
     @OptIn(ExperimentalContracts::class)
-    public infix fun <T : Any> Registrar<T>.contains(block: RegistrarScript<T>.() -> Unit) {
+    protected infix fun <T : Any> Registrar<T>.contains(block: RegistrarScript<T>.() -> Unit) {
         contract {
             callsInPlace(block, InvocationKind.EXACTLY_ONCE)
         }
@@ -166,7 +165,7 @@ public abstract class BundleScript {
     }
 
     @BundleDSL
-    public inner class RegistrationScript @PublishedApi internal constructor(private val registryNamespace: BundleReference) {
+    protected inner class RegistrationScript @PublishedApi internal constructor(private val registryNamespace: BundleReference) {
         /**
          * Adds an [entry] to a [registry][quest.laxla.mockoge.Registry].
          *
@@ -180,7 +179,7 @@ public abstract class BundleScript {
     }
 
     @BundleDSL
-    public inner class RegistrarScript<T> internal constructor(public val registry: Identifiable) where T : Any {
+    protected inner class RegistrarScript<T> internal constructor(public val registry: Identifiable) where T : Any {
 
         /**
          * Registers the receiver at [path].
@@ -194,7 +193,7 @@ public abstract class BundleScript {
     }
 
     public companion object {
-        @Suppress("UNREACHABLE_CODE", "unused", "UNUSED_VARIABLE")
+        @Suppress(Unreachable, Unused, UnusedVariable)
         private fun BundleScript.example() {
             Extension dependency "graphics" version any // registration forbidden for extensions
             Optional dependency "my_tile_lib" version "8" namespace {

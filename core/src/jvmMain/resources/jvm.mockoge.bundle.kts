@@ -1,0 +1,1 @@
+Required dependency "mockoge" version "=$projectVersion"

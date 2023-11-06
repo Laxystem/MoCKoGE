@@ -1,3 +1,5 @@
-Extension dependency ""
+Extension dependency "jvm" version "=$projectVersion"
+Extension dependency "native" version "=$projectVersion"
 
-// TODO: create an IDEA plugin to solve this incredibly annoying error.
+
+// TODO: Fix IDE highlighting not working in non-JVM source sets

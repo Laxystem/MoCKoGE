@@ -13,14 +13,6 @@ abstract class BundleTask : DefaultTask() {
     fun bundle() {
         createMissingPropertyFile()
         extractVersionFromPropertyFile()
-
-        project.dependencies {
-            val dependency = "quest.laxla.mockoge:gradle:${config.mockoge}"
-
-            project.configurations.matching { it.name.startsWith("ksp") && it.name != "ksp" }.forEach {
-                add(it.name, dependency)
-            }
-        }
     }
 
     private fun createMissingPropertyFile() {

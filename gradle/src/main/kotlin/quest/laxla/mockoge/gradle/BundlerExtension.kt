@@ -54,10 +54,9 @@ abstract class BundlerExtension(private val project: Project) {
         this.target = target
     }
 
-    val mockoge = BundlerPlugin::class.java.classLoader.getResource(".mockoge")!!.readText()
-    fun mockoge(module: String) = "quest.laxla.mockoge:$module:$mockoge"
+    fun mockoge(module: String) = "quest.laxla.mockoge:$module:${BundlerPlugin.version}"
 
-    val advanced = project.extensions.getByType<KotlinMultiplatformExtension>()
+    val advanced get() = project.extensions.getByType<KotlinMultiplatformExtension>()
 
     val dependencies: Kotlin get() = advanced.sourceSets
     fun dependencies(configure: Kotlin.() -> Unit) = dependencies.configure()
