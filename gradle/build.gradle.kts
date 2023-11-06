@@ -40,11 +40,6 @@ gradlePlugin {
             displayName = "MoCKoGE Bundler"
             description = "The official MoCKoGE plugin, allows fatjaring MoCKoGE & Native Compilation"
         }
-
-        create("internalBundler") {
-            id = "quest.laxla.mockoge.internal.bundler"
-            implementationClass = "quest.laxla.mockoge.gradle.InternalBundlerPlugin"
-        }
     }
 }
 

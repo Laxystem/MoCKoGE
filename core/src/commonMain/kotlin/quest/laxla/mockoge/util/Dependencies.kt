@@ -5,7 +5,7 @@ import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.constraints.satisfiedBy
 
 public interface DependencyRelation {
-    public val behaviour: Behaviour?
+    public val behaviour: Behaviour
 
     public enum class Behaviour {
         Incompatible, Optional, Required

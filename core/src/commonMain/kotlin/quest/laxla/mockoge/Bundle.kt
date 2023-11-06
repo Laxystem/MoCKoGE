@@ -19,7 +19,7 @@ public class Bundle internal constructor(namespace: String) : NamespaceProvider(
     internal val logger: KLogger = KotlinLogging.logger(namespace)
 
     @Serializable
-    public enum class BundleDependencyRelation(override val behaviour: DependencyRelation.Behaviour?) : DependencyRelation {
+    public enum class Relation(override val behaviour: DependencyRelation.Behaviour) : DependencyRelation {
         Incompatible(DependencyRelation.Behaviour.Incompatible),
         Optional(DependencyRelation.Behaviour.Optional),
         Extension(DependencyRelation.Behaviour.Optional),

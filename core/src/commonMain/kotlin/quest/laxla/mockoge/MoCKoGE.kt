@@ -3,12 +3,10 @@ package quest.laxla.mockoge
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import okio.Path.Companion.toPath
-import quest.laxla.mockoge.loader.BundleScript
-import quest.laxla.mockoge.loader.Bundleable
 import quest.laxla.mockoge.util.BasePath
 import quest.laxla.mockoge.util.FileSystem
 
-public data object MoCKoGE : NamespaceProvider("mockoge") {
+public data object MoCKoGE : NamespaceProvider(namespace = "mockoge") {
     internal val logger: KLogger = KotlinLogging.logger(namespace)
 
     public val isDevelopmentEnvironment: Boolean get() = FileSystem.exists("build.gradle.kts".toPath())
@@ -27,9 +25,6 @@ public data object MoCKoGE : NamespaceProvider("mockoge") {
 
         RootRegistry.isRegistryFrozen = false
 
-    // todo: load bundles, lol.
+        // todo: load bundles, lol.
     }
 }
-
-@Bundleable
-public data object TemporaryBundle : BundleScript()

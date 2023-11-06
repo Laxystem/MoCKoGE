@@ -2,9 +2,11 @@ package quest.laxla.mockoge.gradle
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.process.CommandLineArgumentProvider
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -17,7 +19,7 @@ private typealias Dependencies = KotlinDependencyHandler.() -> Unit
 private typealias Target = KotlinMultiplatformExtension.() -> Unit
 
 @Suppress("FunctionName")
-abstract class BundlerExtension(project: Project) {
+abstract class BundlerExtension(private val project: Project) {
     var isAutomaticallyCreatingMissingPropertyFile by property { true }
     var isExtractingVersionFromPropertyFile by property { true }
     var versionPropertyName: String by property { "version" }
@@ -31,7 +33,9 @@ abstract class BundlerExtension(project: Project) {
 
     companion object {
         val EditorSupport: Target = {
-            jvm()
+            jvm {
+                withJava()
+            }
         }
 
         val Everything: Target = {
@@ -67,7 +71,7 @@ abstract class BundlerExtension(project: Project) {
     }
 
     fun Kotlin.common(configure: Dependencies) = named<KotlinSourceSet>("commonMain") { dependencies(configure) }
-    fun Kotlin.tests(configure: Dependencies) = named<KotlinSourceSet>("commonTest") { dependencies(configure) }
+    fun Kotlin.test(configure: Dependencies) = named<KotlinSourceSet>("commonTest") { dependencies(configure) }
     fun Kotlin.java(configure: Dependencies) = named<KotlinSourceSet>("javaMain") { dependencies(configure) }
     fun Kotlin.`java tests`(configure: Dependencies) = named<KotlinSourceSet>("javaTest") { dependencies(configure) }
     fun Kotlin.jvm(configure: Dependencies) = named<KotlinSourceSet>("jvmMain") { dependencies(configure) }
@@ -81,4 +85,17 @@ abstract class BundlerExtension(project: Project) {
     fun Kotlin.darwin(configure: Dependencies) = named<KotlinSourceSet>("darwinMain") { dependencies(configure) }
     fun Kotlin.`darwin tests`(configure: Dependencies) =
         named<KotlinSourceSet>("darwinTest") { dependencies(configure) }
+
+    @Suppress("UnusedReceiverParameter")
+    fun Presets.MoCKoGE() {
+        explicitApi = ExplicitApiMode.Strict
+
+        compiler {
+            progressiveMode.set(true)
+            allWarningsAsErrors.set(true)
+        }
+    }
+
+    object Presets
+    val presets get() = Presets
 }

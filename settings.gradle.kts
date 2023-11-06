@@ -1,5 +1,5 @@
 rootProject.name = "mockoge"
-include("core", "graphics", "graphics:renderer", "graphics:windower")
+include("core", "graphics")
 
 // For dependencies
 includeBuild("gradle")

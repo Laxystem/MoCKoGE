@@ -9,18 +9,16 @@ import kotlin.jvm.JvmName
 
 public typealias FileAction<T> = FileSystem.() -> T
 
-@Suppress("NO_ACTUAL_FOR_EXPECT") // fixme: https://youtrack.jetbrains.com/issue/KTIJ-14471
 internal expect val FileSystem: FileSystem
 
 /**
  * Secondary, read only filesystems to find bundles in.
  */
-@Suppress("NO_ACTUAL_FOR_EXPECT") // fixme: https://youtrack.jetbrains.com/issue/KTIJ-14471
 internal expect val SecondaryFileSystems: ImmutableList<FileSystem>
 
 public val CurrentDirectory: Path = ".".toPath()
 
-public val BasePath: Path = if (MoCKoGE.isDevelopmentEnvironment) "out".toPath() else CurrentDirectory
+public val BasePath: Path = if (MoCKoGE.isDevelopmentEnvironment) "run".toPath() else CurrentDirectory
 
 public inline fun <T> Iterable<FileSystem>.firstMatchFor(action: FileAction<T?>): T? = firstNotNullOfOrNull(action)
 
@@ -29,10 +27,13 @@ public fun <T> Iterable<FileSystem>.allMatchesFor(action: FileAction<T?>): Seque
 @JvmName("flattenAllMatchesFor")
 public fun <T> Iterable<FileSystem>.allMatchesFor(action: FileAction<Sequence<T>>): Sequence<T> = asSequence().flatMap(action)
 
-public const val BundleFileExtension: String = ".bundle"
+public const val BundleFileExtension: String = ".mockoge.kts"
 
 /**
- * Turns `"example.mockoge.bundle.json"` to `"mockoge/example"`
+ * Turns `"mple.exa.bundle.kts"` to `"exa/mple"`
+ *
+ * @since 0.0.1
+ * @author Laxystem
  */
 @JvmName("extractNamespaceFrom")
 public fun String.extractNamespace(): String? = this

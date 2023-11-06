@@ -1,7 +1,6 @@
 package quest.laxla.mockoge
 
-import quest.laxla.mockoge.util.PathPattern
-import quest.laxla.mockoge.util.at
+import quest.laxla.mockoge.Identifier.Companion.NamespacePattern
 
 /**
  * Represents an object that is capable of generating [Identifier]s of the given [namespace].
@@ -11,6 +10,10 @@ import quest.laxla.mockoge.util.at
  */
 public sealed class NamespaceProvider(public val namespace: String) {
     init {
-        if (!namespace.matches(PathPattern)) throw IllegalArgumentException("Namespace $namespace must match regex [$PathPattern]")
+        require(namespace.matches(NamespacePattern)) {
+            "Namespace $namespace must match regex ${NamespacePattern.pattern}"
+        }
     }
+
+    override fun toString(): String = namespace
 }

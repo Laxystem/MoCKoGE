@@ -1,5 +1,5 @@
 plugins {
-    id("quest.laxla.mockoge.internal.bundler")
+    id("quest.laxla.mockoge.bundler")
 }
 
 val collections: String by project
@@ -14,6 +14,8 @@ val serialization: String by project
 val slf4j: String by project
 
 bundler {
+    presets.MoCKoGE()
+
     target {
         alpha()
         linuxX64()
@@ -28,14 +30,17 @@ bundler {
             api("com.github.ajalt.colormath:colormath:$colormath")
             api("io.github.oshai:kotlin-logging:$klogging")
             api("io.github.z4kn4fein:semver:$semver")
-            api("com.squareup.okio:okio:$okio")
+            api("com.squareup.okio:okio:$okio") // TODO: Use KotlinX IO
+            implementation("org.jetbrains.kotlin:kotlin-scripting-common")
         }
 
-        tests {
+        test {
             api("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines")
         }
 
         jvm {
+            implementation("org.jetbrains.kotlin:kotlin-scripting-jvm")
+            implementation("org.jetbrains.kotlin:kotlin-scripting-jvm-host")
             runtimeOnly("org.slf4j:slf4j-api:$slf4j")
             runtimeOnly("ch.qos.logback:logback-classic:$logback")
         }

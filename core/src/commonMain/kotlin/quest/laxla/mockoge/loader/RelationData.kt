@@ -1,17 +1,10 @@
 package quest.laxla.mockoge.loader
 
 import io.github.z4kn4fein.semver.constraints.Constraint
-import kotlinx.collections.immutable.ImmutableList
 import quest.laxla.mockoge.Bundle
 
 public data class RelationData(
     val namespace: String,
-    val relation: Bundle.BundleDependencyRelation,
-    val versions: ImmutableList<Constraint>
-) {
-    public data class Builder(
-        val namespace: String,
-        var relation: Bundle.BundleDependencyRelation = Bundle.BundleDependencyRelation.Required,
-        val versions: MutableList<Constraint> = mutableListOf()
-    )
-}
+    val relation: Bundle.Relation,
+    val versions: Constraint
+)

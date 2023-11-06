@@ -7,24 +7,10 @@ package quest.laxla.mockoge
  */
 public abstract class DefaultedRegistry<T : Any>(
     public val default: T,
-    private val defaultEntryPath: String = "root",
-    freezerProvider: FreezerConsumer? = RootRegistry.lifecycle
-) : Registry<T>(freezerProvider),
-    RegistrationAware {
+    lifecycle: FreezingListener = RootRegistry.lifecycle
+) : Registry<T>(lifecycle) {
 
-    /**
-     * The [Identifier] of the [default entry][DefaultedRegistry.default].
-     *
-     * Do not use before registration.
-     */
-    public lateinit var defaultEntryIdentifier: Identifier
-        private set
+    public val defaultIdentifier: Identifier by lazy { get(default)!! }
 
     public fun getOrDefault(identifier: Identifier): T = this[identifier] ?: default
-
-    override fun onRegister(identifier: Identifier) {
-        defaultEntryIdentifier =
-            Identifier(identifier.namespace, defaultEntryPath)
-        this[defaultEntryIdentifier] = default
-    }
 }
