@@ -1,5 +1,6 @@
 package quest.laxla.mockoge.loader
 
+import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.constraints.Constraint
 import io.github.z4kn4fein.semver.constraints.toConstraint
 import kotlinx.collections.immutable.ImmutableList
@@ -7,13 +8,12 @@ import kotlinx.collections.immutable.ImmutableMap
 import quest.laxla.mockoge.*
 import quest.laxla.mockoge.Bundle.Relation.*
 import quest.laxla.mockoge.util.*
+import quest.laxla.mockoge.util.VersionDSL.ConstraintBlock
 import quest.laxla.mockoge.util.VersionDSL.any
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.jvm.JvmName
-import kotlin.jvm.JvmSerializableLambda
-import kotlin.jvm.JvmSynthetic
 
 private typealias RelationDataBuilder = Pair<String, Bundle.Relation>
 private typealias Registrar<T> = Pair<Identifiable, Registry<T>>
@@ -44,7 +44,56 @@ public abstract class BundleScript {
      */
     public val declarations: ImmutableMap<Identifiable, ImmutableList<Pair<Identifiable, Any>>> get() = _declarations.toImmutableMap()
 
-    protected val projectVersion: String = throw NotImplementedError("Should've been replaced by the Bundler, check your gradle build")
+    /**
+     * The version of your Gradle project.
+     *
+     * Equivalent to `project.version` in `build.gradle.kts`.
+     *
+     * @author Laxystem
+     * @since 0.0.1
+     */
+    protected val projectVersion: String get() = throw NotImplementedError(TEMPLATE_EXPRESSION_ONLY_MESSAGE)
+
+    /**
+     * The version of MoCKoGE your Gradle project uses.
+     *
+     * Equivalent to the version of the Bundler plugin you're using.
+     *
+     * @author Laxystem
+     * @since 0.0.1
+     */
+    protected val mockogeVersion: String get() = throw NotImplementedError(TEMPLATE_EXPRESSION_ONLY_MESSAGE)
+
+    /**
+     * The bundle's version. Required.
+     *
+     * @author Laxystem
+     * @since 0.0.1
+     */
+    public lateinit var version: Version
+        protected set
+
+    /**
+     * The version of the extended bundle.
+     *
+     * Required if this is an extension, unsupported otherwise.
+     *
+     * @author Laxystem
+     * @since 0.0.1
+     */
+    public var base: Constraint? = null
+        protected set
+
+    /**
+     * The version of MoCKoGE this bundle supports. Required.
+     *
+     * @author Laxystem
+     * @since 0.0.1
+     * @see mockogeVersion
+     */
+    public lateinit var mockoge: Constraint
+
+    protected inline fun mockoge(block: RegistrationScript.() -> Unit) { RegistrationScript(MoCKoGE).block() }
 
     /**
      * Adds [namespace] as a dependency.
@@ -67,8 +116,8 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1
      */
-    protected infix fun Bundle.Relation.officialDependency(namespace: String): RelationDataBuilder =
-        dependency(namespace = EngineName + Identifier.NAMESPACE_SEPARATOR + namespace)
+    protected infix fun Bundle.Relation.module(namespace: String): BundleReference =
+        dependency(namespace = EngineName + Identifier.NAMESPACE_SEPARATOR + namespace) version mockoge
 
     /**
      * Specifies the version of a dependency.
@@ -98,10 +147,10 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1
      * @see VersionDSL
-     * @see any
+     * @see VersionDSL.any
      */
-    protected inline infix fun RelationDataBuilder.version(version: ConstraintBlock): BundleReference =
-        version(VersionDSL(version))
+    protected infix fun RelationDataBuilder.version(version: ConstraintBlock): BundleReference =
+        version(version.parse())
 
 
     /**
@@ -165,7 +214,7 @@ public abstract class BundleScript {
     }
 
     @BundleDSL
-    protected inner class RegistrationScript @PublishedApi internal constructor(private val registryNamespace: BundleReference) {
+    protected inner class RegistrationScript @PublishedApi internal constructor(private val registryNamespace: NamespaceProvider) {
         /**
          * Adds an [entry] to a [registry][quest.laxla.mockoge.Registry].
          *
@@ -179,7 +228,7 @@ public abstract class BundleScript {
     }
 
     @BundleDSL
-    protected inner class RegistrarScript<T> internal constructor(public val registry: Identifiable) where T : Any {
+    protected inner class RegistrarScript<T> internal constructor(private val registry: Identifiable) where T : Any {
 
         /**
          * Registers the receiver at [path].
@@ -204,16 +253,18 @@ public abstract class BundleScript {
             Incompatible dependency "my_tile_lib/hexagon" version "=4.2 || >=4.5.7 <5.*"
 
             // dependency on mockoge/graphics
-            val graphicsLib = Required officialDependency "graphics" version { "=0.0.1-alpha" or "=0.0.1-alpha.1" }
+            val graphicsLib = Required module "graphics"
 
             (error("Create a registry") as Registry<Any>) aka "bundle_loader" contains {
                 error("Create a bundle loader") at "my_custom_bundle_loader"
             }
 
             namespace(graphicsLib) {
-                "renderer"["experimental/qpu"] = error("Emulate a Quantum Processing Unit hehehehehehe")
+                "renderer"["experimental/qpu"] = error("Emulate a Quantum Processing Unit :3")
             }
         }
+
+        private const val TEMPLATE_EXPRESSION_ONLY_MESSAGE = "This variable may only be used as a template expression."
     }
 }
 

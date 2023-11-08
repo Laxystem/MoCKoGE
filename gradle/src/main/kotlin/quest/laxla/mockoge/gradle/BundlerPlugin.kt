@@ -2,8 +2,8 @@ package quest.laxla.mockoge.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.LogLevel
 import org.gradle.kotlin.dsl.*
+import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 private const val PluginName = "bundler"
@@ -33,6 +33,15 @@ class BundlerPlugin : Plugin<Project> {
 
             project.configurations.matching { it.name == kspTaskName }.all {
                 project.dependencies.add(name, dependency)
+            }
+        }
+
+        @Suppress("UnstableApiUsage")
+        project.tasks.withType<ProcessResources> task@{
+            doFirst {
+                filesMatching("**/*.bundle.kts") {
+                    expand("projectVersion" to this@task.project.version, "mockogeVersion" to version)
+                }
             }
         }
     }
