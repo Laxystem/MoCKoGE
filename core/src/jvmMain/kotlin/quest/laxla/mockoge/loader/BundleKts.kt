@@ -11,6 +11,6 @@ import kotlin.script.experimental.annotations.KotlinScript
     fileExtension = BundleFileExtension,
     compilationConfiguration = CompilationConfiguration::class
 )
-public abstract class BundleKts : BundleScript()
+public open class BundleKts : BundleScript()
 
 

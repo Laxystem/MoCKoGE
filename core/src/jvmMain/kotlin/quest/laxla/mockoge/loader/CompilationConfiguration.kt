@@ -3,7 +3,7 @@ package quest.laxla.mockoge.loader
 import quest.laxla.mockoge.Bundle
 import quest.laxla.mockoge.util.VersionDSL
 import kotlin.script.experimental.api.*
-import kotlin.script.experimental.jvm.dependenciesFromCurrentContext
+import kotlin.script.experimental.jvm.dependenciesFromClassContext
 import kotlin.script.experimental.jvm.jvm
 
 public object CompilationConfiguration : ScriptCompilationConfiguration(
@@ -18,14 +18,12 @@ public object CompilationConfiguration : ScriptCompilationConfiguration(
         )
 
         jvm {
-            dependenciesFromCurrentContext() // TODO: restrict
+            dependenciesFromClassContext(BundleKts::class, wholeClasspath = true) // TODO: restrict
         }
 
         ide {
             acceptedLocations(ScriptAcceptedLocation.Everywhere)
         }
-
-
     }
 ) {
     private fun readResolve(): Any = CompilationConfiguration
