@@ -17,7 +17,7 @@ private typealias Kotlin = NamedDomainObjectContainer<KotlinSourceSet>
 private typealias Dependencies = KotlinDependencyHandler.() -> Unit
 private typealias Target = KotlinMultiplatformExtension.() -> Unit
 
-@Suppress("FunctionName")
+@Suppress("FunctionName", "unused")
 abstract class BundlerExtension(private val project: Project) {
     var isAutomaticallyCreatingMissingPropertyFile by property { true }
     var isExtractingVersionFromPropertyFile by property { true }

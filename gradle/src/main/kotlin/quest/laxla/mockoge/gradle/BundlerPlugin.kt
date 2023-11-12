@@ -33,26 +33,34 @@ class BundlerPlugin : Plugin<Project> {
                 project.tasks.getByName(compileKotlinTaskName).dependsOn(bundler)
 
                 if (platformType == KotlinPlatformType.jvm) {
-                    val standaloneJar by project.tasks.register<Jar>(name = StandaloneJarName + artifactsTaskName.chain() + compilationName.chain()) {
-                        archiveClassifier.set(StandaloneJarName)
+                    val taskName = StandaloneJarName + artifactsTaskName.chain() + compilationName.chain()
+
+                    val standaloneJar by project.tasks.register<Jar>(taskName) {
+                        archiveClassifier.set(taskName)
                         manifest.attributes += "Main-Class" to Entrypoint
 
+                        duplicatesStrategy = DuplicatesStrategy.WARN
+
+                        // unzip dependency jars
                         val files = runtimeDependencyFiles!!.elements.map { runtimeDependencies ->
-                            project.files(runtimeDependencies.map { jar ->
+                            runtimeDependencies.map { jar ->
                                 project.zipTree(jar)
-                            })
+                            }
                         }
 
                         inputs.files(files)
-                        from(files)
-
-                        duplicatesStrategy = DuplicatesStrategy.WARN
+                        from(files) {
+                            exclude {
+                                it.name == "module-info.class" || it.name == "INDEX.LIST"
+                            }
+                        }
                     }
 
+                    // add resources from the normal jar task
                     project.tasks.matching { it.name == artifactsTaskName }.all {
                         val files = inputs.files
 
-                            standaloneJar.inputs.files(files)
+                        standaloneJar.inputs.files(files)
                         standaloneJar.from(files)
                     }
                 }
