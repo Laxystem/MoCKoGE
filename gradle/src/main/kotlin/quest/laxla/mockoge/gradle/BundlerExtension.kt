@@ -2,11 +2,10 @@ package quest.laxla.mockoge.gradle
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.provideDelegate
-import org.gradle.process.CommandLineArgumentProvider
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -32,9 +31,14 @@ abstract class BundlerExtension(private val project: Project) {
     val editor = EditorSupport
 
     companion object {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         val EditorSupport: Target = {
             jvm {
                 withJava()
+                mainRun {
+                    mainClass.set("quest.laxla.mockoge.MainKt")
+                }
+                withSourcesJar(true)
             }
         }
 
@@ -85,8 +89,10 @@ abstract class BundlerExtension(private val project: Project) {
     fun Kotlin.`darwin tests`(configure: Dependencies) =
         named<KotlinSourceSet>("darwinTest") { dependencies(configure) }
 
-    @Suppress("UnusedReceiverParameter")
-    fun Presets.MoCKoGE() {
+    /**
+     * Use the official MoCKoGE preset, used internally.
+     */
+    fun MoCKoGE() {
         explicitApi = ExplicitApiMode.Strict
 
         compiler {
@@ -94,7 +100,4 @@ abstract class BundlerExtension(private val project: Project) {
             allWarningsAsErrors.set(true)
         }
     }
-
-    object Presets
-    val presets get() = Presets
 }

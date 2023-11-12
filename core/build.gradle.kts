@@ -14,7 +14,7 @@ val serialization: String by project
 val slf4j: String by project
 
 bundler {
-    presets.MoCKoGE()
+    MoCKoGE()
 
     target {
         alpha()

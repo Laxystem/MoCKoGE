@@ -32,21 +32,17 @@ dependencies {
     implementation("com.squareup:kotlinpoet-ksp:$poet")
 }
 
-gradlePlugin {
-    plugins {
-        create("bundler") {
-            id = "quest.laxla.mockoge.bundler"
-            implementationClass = "quest.laxla.mockoge.gradle.BundlerPlugin"
-            displayName = "MoCKoGE Bundler"
-            description = "The official MoCKoGE plugin, allows fatjaring MoCKoGE & Native Compilation"
-        }
-    }
+val bundler: PluginDeclaration by gradlePlugin.plugins.creating {
+    id = "quest.laxla.mockoge.bundler"
+    implementationClass = "quest.laxla.mockoge.gradle.BundlerPlugin"
+    displayName = "MoCKoGE Bundler"
+    description = "The official MoCKoGE plugin, allows fatjaring MoCKoGE & Native Compilation"
 }
 
 val outputDir: Directory = layout.buildDirectory.dir("generated/resources").get()
 
 tasks {
-    val bundle = create("bundle") {
+    val bundle by creating {
         val outputFile = outputDir.file(".mockoge")
         outputs.file(outputFile)
 

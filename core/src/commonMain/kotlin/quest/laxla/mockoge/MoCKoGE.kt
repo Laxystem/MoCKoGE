@@ -3,8 +3,9 @@ package quest.laxla.mockoge
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import okio.Path.Companion.toPath
-import quest.laxla.mockoge.util.BasePath
+import quest.laxla.mockoge.util.*
 import quest.laxla.mockoge.util.FileSystem
+import quest.laxla.mockoge.util.SecondaryFileSystems
 
 public data object MoCKoGE : NamespaceProvider(namespace = "mockoge") {
     internal val logger: KLogger = KotlinLogging.logger(namespace)
@@ -24,6 +25,13 @@ public data object MoCKoGE : NamespaceProvider(namespace = "mockoge") {
         }
 
         RootRegistry.isRegistryFrozen = false
+
+        @Suppress(UnusedVariable) // TODO
+        val bundles = SecondaryFileSystems.allMatchesFor {
+            list(CurrentDirectory).asSequence().filter {
+                it.name.endsWith(BundleFileExtension) && metadataOrNull(it)?.isDirectory == false
+            }
+        }
 
         // todo: load bundles, lol.
     }

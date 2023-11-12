@@ -2,6 +2,8 @@ package quest.laxla.mockoge.loader
 
 import quest.laxla.mockoge.Bundle
 import quest.laxla.mockoge.util.VersionDSL
+import quest.laxla.mockoge.util.jar
+import quest.laxla.mockoge.util.resource
 import kotlin.script.experimental.api.*
 import kotlin.script.experimental.jvm.dependenciesFromClassContext
 import kotlin.script.experimental.jvm.jvm
@@ -18,7 +20,12 @@ public object CompilationConfiguration : ScriptCompilationConfiguration(
         )
 
         jvm {
-            dependenciesFromClassContext(BundleKts::class, wholeClasspath = true) // TODO: restrict
+            BundleKts::class.resource?.jar?.name?.let {
+                dependenciesFromClassContext(
+                    BundleKts::class,
+                    KotlinVersion::class.resource!!.jar!!.name
+                )
+            } ?: dependenciesFromClassContext(BundleKts::class, wholeClasspath = true)
         }
 
         ide {

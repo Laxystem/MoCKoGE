@@ -3,7 +3,7 @@ plugins {
 }
 
 bundler {
-    presets.MoCKoGE()
+    MoCKoGE()
 
     target {
         jvm()
