@@ -1,5 +1,6 @@
 package quest.laxla.mockoge.loader
 
+import io.github.z4kn4fein.semver.Version
 import quest.laxla.mockoge.Bundle
 import quest.laxla.mockoge.util.VersionDSL
 import quest.laxla.mockoge.util.jar
@@ -23,10 +24,13 @@ public object CompilationConfiguration : ScriptCompilationConfiguration(
             BundleKts::class.resource?.jar?.name?.let {
                 dependenciesFromClassContext(
                     BundleKts::class,
-                    KotlinVersion::class.resource!!.jar!!.name
+                    KotlinVersion::class.resource!!.jar!!.name,
+                    Version::class.resource!!.jar!!.name
                 )
             } ?: dependenciesFromClassContext(BundleKts::class, wholeClasspath = true)
         }
+
+        compilerOptions.append("-Xadd-modules=ALL-MODULE-PATH")
 
         ide {
             acceptedLocations(ScriptAcceptedLocation.Everywhere)

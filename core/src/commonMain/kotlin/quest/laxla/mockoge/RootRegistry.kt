@@ -1,22 +1,9 @@
 package quest.laxla.mockoge
 
-private val events = mutableListOf<RegistryTemperatureEvent>()
-
 /**
- * All registries are registered to this [Registry], that is also registered to itself.
- *
- * *One [Registry] to rule them [all][Iterable.all], One [Registry] to [find][Iterable.find] them,
- * One [Registry] to bring them all and in the darkness bind them.*
+ * The client-side top-level [root][Registry.Root] [registry][Registry].
  */
-public object RootRegistry : Registry<Registry<*>>({ events += it }) {
-    /**
-     * Delegates to [isFrozen]. Allows internal code to manage the [RootRegistry]'s [lifecycle].
-     */
-    internal var isRegistryFrozen: Boolean
-        get() = isFrozen
-        set(value) = events.forEach { it(value) }
-
-    init {
-        this["root" at MoCKoGE] = this
-    }
+public object RootRegistry : AbstractRegistry<Registry.Rooted<*>>(), Registry.Root {
+    override var isMutable: Boolean = false
+        internal set
 }

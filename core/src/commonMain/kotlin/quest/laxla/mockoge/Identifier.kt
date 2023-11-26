@@ -2,6 +2,9 @@ package quest.laxla.mockoge
 
 public infix fun String.at(namespace: NamespaceProvider): Identifier = Identifier(namespace, this)
 
+/**
+ * @author Laxystem
+ */
 public class Identifier : Identifiable {
     public override val namespace: String
     public override val path: String
@@ -12,8 +15,8 @@ public class Identifier : Identifiable {
     public constructor(namespace: NamespaceProvider, path: String) : this(namespace.namespace, path)
 
     private constructor(namespace: String, path: String) {
-        require(PathPattern matches namespace) { "Namespace ($namespace) doesn't match regex (${PathPattern.pattern})" }
-        require(NamespacePattern matches path) { "Path ($path) doesn't match regex (${NamespacePattern.pattern})" }
+        require(PathPattern matches namespace) { "Namespace [$namespace] doesn't match regex [${PathPattern.pattern}]" }
+        require(NamespacePattern matches path) { "Path [$path] doesn't match regex [${NamespacePattern.pattern}]" }
 
         this.namespace = namespace
         this.path = path
@@ -23,13 +26,13 @@ public class Identifier : Identifiable {
     private constructor(identifier: String) {
         val pattern = IdentifierPattern.matchEntire(identifier)
 
-        requireNotNull(pattern) { "Identifier string ($identifier) doesn't match regex ($IdentifierPattern)" }
+        requireNotNull(pattern) { "Identifier string $identifier doesn't match regex [$IdentifierPattern]" }
 
         namespace = pattern.groups[NAMESPACE_GROUP]!!.value
         path = pattern.groups[PATH_GROUP]!!.value
     }
 
-    public override fun toString(): String = namespace + SEPARATOR + path
+    public override fun toString(): String = "[$namespace$SEPARATOR$path]"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

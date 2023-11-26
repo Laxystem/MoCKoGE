@@ -13,10 +13,10 @@ import quest.laxla.mockoge.util.VersionDSL.any
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmName
 
 private typealias RelationDataBuilder = Pair<String, Bundle.Relation>
-private typealias Registrar<T> = Pair<Identifiable, Registry<T>>
 
 /**
  * The DSL that creates bundles!
@@ -193,8 +193,10 @@ public abstract class BundleScript {
      * @author Laxystem
      * @since 0.0.1
      */
-    protected infix fun <T : Any> Registry<T>.aka(path: String): Registrar<T> =
-        register(path, entry = this, RootRegistry.identifier) to this
+    protected infix fun <T : Any> Registry.Rooted<T>.aka(path: String): Registrar<T> {
+        register(path, entry = this, Identifiable.Arbitrary("root"))
+        return Registrar(this)
+    }
 
     /**
      * Registers to a [Registry] that was just registered.
@@ -208,9 +210,7 @@ public abstract class BundleScript {
             callsInPlace(block, InvocationKind.EXACTLY_ONCE)
         }
 
-        val (identifier, _) = this
-
-        RegistrarScript<T>(identifier).block()
+        RegistrarScript<T>(registry.identifier).block()
     }
 
     @BundleDSL
@@ -227,6 +227,9 @@ public abstract class BundleScript {
         }
     }
 
+    @JvmInline
+    protected value class Registrar<T : Any>(public val registry: Registry.Rooted<T>)
+
     @BundleDSL
     protected inner class RegistrarScript<T> internal constructor(private val registry: Identifiable) where T : Any {
 
@@ -242,7 +245,7 @@ public abstract class BundleScript {
     }
 
     public companion object {
-        @Suppress(Unreachable, Unused, UnusedVariable)
+        @Suppress(UnusedCode, Unused, UnusedVariable)
         private fun BundleScript.example() {
             Extension dependency "graphics" version any // registration forbidden for extensions
             Optional dependency "my_tile_lib" version "8" namespace {
@@ -255,7 +258,7 @@ public abstract class BundleScript {
             // dependency on mockoge/graphics
             val graphicsLib = Required module "graphics"
 
-            (error("Create a registry") as Registry<Any>) aka "bundle_loader" contains {
+            (error("Create a registry") as Registry.Rooted<Any>) aka "bundle_loader" contains {
                 error("Create a bundle loader") at "my_custom_bundle_loader"
             }
 

@@ -8,13 +8,15 @@ import kotlin.script.experimental.api.SourceCode
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 import kotlin.script.experimental.jvmhost.createJvmScriptDefinitionFromTemplate
 
+private val defaultFailureMessage = { "KotlinScript compilation failed" }
+
 internal class KotlinScriptHost {
     private val host = BasicJvmScriptingHost()
     private val template = createJvmScriptDefinitionFromTemplate<BundleKts>()
 
     operator fun invoke(
         source: SourceCode,
-        failureMessage: () -> String = { "KotlinScript compilation failed" }
+        failureMessage: () -> String = defaultFailureMessage
     ): EvaluationResult? {
         val result = host.eval(
             source,

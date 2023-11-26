@@ -36,7 +36,8 @@ class BundlerPlugin : Plugin<Project> {
                     val taskName = StandaloneJarName + artifactsTaskName.chain() + compilationName.chain()
 
                     val standaloneJar by project.tasks.register<Jar>(taskName) {
-                        archiveClassifier.set(taskName)
+                        archiveAppendix.set(targetName)
+                        archiveClassifier.set(StandaloneJarName)
                         manifest.attributes += "Main-Class" to Entrypoint
 
                         duplicatesStrategy = DuplicatesStrategy.WARN

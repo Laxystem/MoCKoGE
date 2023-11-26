@@ -24,7 +24,7 @@ public data object MoCKoGE : NamespaceProvider(namespace = "mockoge") {
             FileSystem.createDirectory(BasePath)
         }
 
-        RootRegistry.isRegistryFrozen = false
+        RootRegistry.isMutable = true
 
         @Suppress(UnusedVariable) // TODO
         val bundles = SecondaryFileSystems.allMatchesFor {
