@@ -5,6 +5,9 @@
   <i>The <b>Mo</b>dular <b>C</b>oncurrent <b>Ko</b>tlin <b>G</b>ame <b>E</b>ngine</i>
 </p>
 
+> [!IMPORTANT]
+> MoCKoGE is superseded by [Spock](https://GitHub.com/Laxystem/Spock).
+
 ## Project Structure
 
 MoCKoGE is separated to subprojects:
